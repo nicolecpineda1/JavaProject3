@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NIKKITEA Database Design</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --panel: #ffffff;
+      --ink: #1f2937;
+      --muted: #667085;
+      --line: #dfe7f3;
+      --blue: #2563eb;
+      --blue-soft: #eaf2ff;
+      --green: #16a34a;
+      --green-soft: #eafaf0;
+      --amber: #d97706;
+      --amber-soft: #fff4df;
+      --purple: #7c3aed;
+      --purple-soft: #f1ebff;
+      --danger: #dc2626;
+      --danger-soft: #fee2e2;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #eef4ff 0%, var(--bg) 40%, #f9fafb 100%);
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      line-height: 1.6;
+      padding: 30px 16px;
+    }
+
+    .page {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      padding: 30px 34px 40px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0f172a 0%, #1d4ed8 100%);
+      color: white;
+      border-radius: 18px;
+      padding: 26px 28px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.18);
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: 34px;
+      letter-spacing: 0.5px;
+    }
+
+    .header h2 {
+      margin: 8px 0 0;
+      font-size: 18px;
+      opacity: 0.9;
+      font-weight: normal;
+    }
+
+    .subhead {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin: 18px 0 26px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-weight: bold;
+      border: 1px solid #bed4ff;
+    }
+
+    h2 {
+      margin: 28px 0 14px;
+      font-size: 24px;
+      color: #111827;
+      border-bottom: 2px solid #e5edff;
+      padding-bottom: 8px;
+    }
+
+    h3 {
+      margin: 18px 0 10px;
+      font-size: 18px;
+      color: #1f2937;
+    }
+
+    p, li {
+      font-size: 15px;
+      color: #374151;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 18px 14px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 11px 12px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      background: #f3f7ff;
+      color: #1f2937;
+      font-weight: bold;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .erd-layout {
+      margin-top: 18px;
+      background: linear-gradient(180deg, #f9fbff 0%, #f4f7ff 100%);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .erd-boxes {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(140px, 1fr));
+      gap: 18px;
+      align-items: center;
+      justify-items: center;
+      margin-top: 12px;
+    }
+
+    .entity {
+      width: 100%;
+      min-height: 110px;
+      background: linear-gradient(180deg, #ffffff 0%, #eef5ff 100%);
+      border: 2px solid #a5c3ff;
+      border-radius: 14px;
+      padding: 12px 10px;
+      text-align: center;
+      box-shadow: 0 6px 14px rgba(59, 130, 246, 0.08);
+    }
+
+    .entity h4 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      color: #153a8a;
+    }
+
+    .entity ul {
+      padding-left: 18px;
+      margin: 0;
+      list-style: disc;
+      text-align: left;
+      font-size: 12px;
+      color: #3c4a5c;
+    }
+
+    .line {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 8px 0;
+      color: #475569;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .line::before,
+    .line::after {
+      content: "";
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, #c7d9ff, #90aef6, #c7d9ff);
+      border-radius: 999px;
+    }
+
+    .line span {
+      padding: 0 12px;
+      white-space: nowrap;
+    }
+
+    .code {
+      background: #0f172a;
+      color: #dbeafe;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 18px;
+      overflow-x: auto;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+      white-space: pre-wrap;
+      line-height: 1.7;
+      margin-top: 18px;
+    }
+
+    .callout {
+      background: var(--blue-soft);
+      border-left: 5px solid var(--blue);
+      padding: 14px 16px;
+      border-radius: 10px;
+      margin-top: 16px;
+      color: #1e3a8a;
+      font-weight: 600;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2,
+      .erd-boxes {
+        grid-template-columns: 1fr;
+      }
+
+      .page {
+        padding: 18px 16px 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="header">
+      <h1>NIKKITEA</h1>
+      <h2>POS System Database Design, Business Rules, and Relational Model</h2>
+    </div>
+
+    <div class="subhead">
+      <span class="badge">Repository: ericson487/nikkitea</span>
+      <span>Prepared for database design and reporting use</span>
+    </div>
+
+    <h2>1. Project Context</h2>
+    <p>
+      NIKKITEA is a Java Swing point-of-sale application for selling milk tea, fruit tea, snacks,
+      and add-ons. The system includes login, menu browsing, custom drink options, cart management,
+      inventory monitoring, cash-based checkout, and completed sales records.
+    </p>
+
+    <h2>2. Business Rules</h2>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Rule ID</th>
+            <th>Business Rule</th>
+            <th>Impact</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>BR-01</td>
+            <td>A user must log in before creating an order.</td>
+            <td>Requires users table and authentication.</td>
+          </tr>
+          <tr>
+            <td>BR-02</td>
+            <td>Each order belongs to one user and has one order type.</td>
+            <td>Orders must store user_id and order_type.</td>
+          </tr>
+          <tr>
+            <td>BR-03</td>
+            <td>Each order can contain many order items.</td>
+            <td>Requires order_items relationship.</td>
+          </tr>
+          <tr>
+            <td>BR-04</td>
+            <td>Each order item references exactly one product.</td>
+            <td>Product table must be normalized.</td>
+          </tr>
+          <tr>
+            <td>BR-05</td>
+            <td>Products belong to categories such as Milk Tea or Fruit Tea.</td>
+            <td>category_id design is required.</td>
+          </tr>
+          <tr>
+            <td>BR-06</td>
+            <td>Drinks may include custom sugar level and cup size.</td>
+            <td>order_items stores sugar_level and cup_size.</td>
+          </tr>
+          <tr>
+            <td>BR-07</td>
+            <td>Add-ons can be attached to a product order item.</td>
+            <td>Requires order_item_addons table.</td>
+          </tr>
+          <tr>
+            <td>BR-08</td>
+            <td>Inventory is tracked per product and cannot go below zero.</td>
+            <td>inventory table with stock validation.</td>
+          </tr>
+          <tr>
+            <td>BR-09</td>
+            <td>Completed orders are paid in cash and generate change.</td>
+            <td>payments and order totals needed.</td>
+          </tr>
+          <tr>
+            <td>BR-10</td>
+            <td>Historical sales should keep the original pricing at the time of sale.</td>
+            <td>unit_price stored in order_items.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>3. Entity Description</h2>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Main Entities</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Entity</th>
+              <th>Purpose</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>users</td><td>Stores cashier/admin user account records.</td></tr>
+            <tr><td>categories</td><td>Classifies products into groups.</td></tr>
+            <tr><td>products</td><td>Stores menu items and base prices.</td></tr>
+            <tr><td>inventory</td><td>Tracks stock quantity and threshold.</td></tr>
+            <tr><td>orders</td><td>Stores completed or pending orders.</td></tr>
+            <tr><td>order_items</td><td>Records each item purchased in an order.</td></tr>
+            <tr><td>order_item_addons</td><td>Stores selected add-ons for an order item.</td></tr>
+            <tr><td>payments</td><td>Stores cash payment and change details.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>Key Attributes</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Table</th>
+              <th>Key Fields</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>users</td><td>user_id, username, password_hash, role</td></tr>
+            <tr><td>categories</td><td>category_id, category_name</td></tr>
+            <tr><td>products</td><td>product_id, category_id, product_code, product_name, base_price</td></tr>
+            <tr><td>inventory</td><td>product_id, current_stock, low_stock_threshold</td></tr>
+            <tr><td>orders</td><td>order_id, user_id, order_type, total_amount</td></tr>
+            <tr><td>order_items</td><td>order_item_id, order_id, product_id, quantity, unit_price</td></tr>
+            <tr><td>order_item_addons</td><td>order_item_addon_id, order_item_id, product_id</td></tr>
+            <tr><td>payments</td><td>payment_id, order_id, amount_paid, change_amount</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <h2>4. ER Diagram (UI-style View)</h2>
+    <div class="erd-layout">
+      <div class="erd-boxes">
+        <div class="entity">
+          <h4>USER</h4>
+          <ul>
+            <li>user_id</li>
+            <li>username</li>
+            <li>role</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>ORDER</h4>
+          <ul>
+            <li>order_id</li>
+            <li>user_id</li>
+            <li>order_type</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>ORDER ITEM</h4>
+          <ul>
+            <li>order_item_id</li>
+            <li>quantity</li>
+            <li>unit_price</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>PRODUCT</h4>
+          <ul>
+            <li>product_id</li>
+            <li>name</li>
+            <li>base_price</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>PAYMENT</h4>
+          <ul>
+            <li>payment_id</li>
+            <li>amount_paid</li>
+            <li>change</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="line"><span>creates</span></div>
+      <div class="line"><span>contains</span></div>
+      <div class="line"><span>references</span></div>
+      <div class="line"><span>records</span></div>
+
+      <div class="erd-boxes" style="grid-template-columns: repeat(4, minmax(150px, 1fr)); margin-top: 10px;">
+        <div class="entity">
+          <h4>CATEGORY</h4>
+          <ul>
+            <li>category_id</li>
+            <li>category_name</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>INVENTORY</h4>
+          <ul>
+            <li>product_id</li>
+            <li>stock</li>
+            <li>threshold</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>ADD-ON</h4>
+          <ul>
+            <li>addon_id</li>
+            <li>name</li>
+            <li>price</li>
+          </ul>
+        </div>
+
+        <div class="entity">
+          <h4>ORDER ITEM ADDON</h4>
+          <ul>
+            <li>order_item_id</li>
+            <li>product_id</li>
+            <li>addon_price</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="callout">
+      Relationship Summary: USER → ORDER → ORDER ITEM → PRODUCT, and PRODUCT → INVENTORY and PRODUCT → ORDER ITEM ADDON.
+    </div>
+
+    <h2>5. Relational Model (Table Form)</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Table</th>
+          <th>Primary Key</th>
+          <th>Foreign Key(s)</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>users</td>
+          <td>user_id</td>
+          <td>-</td>
+          <td>Stores cashier/admin login and role information.</td>
+        </tr>
+        <tr>
+          <td>categories</td>
+          <td>category_id</td>
+          <td>-</td>
+          <td>Defines product categories like Milk Tea and Fruit Tea.</td>
+        </tr>
+        <tr>
+          <td>products</td>
+          <td>product_id</td>
+          <td>category_id → categories.category_id</td>
+          <td>Contains menu items, codes, names, and base prices.</td>
+        </tr>
+        <tr>
+          <td>inventory</td>
+          <td>product_id</td>
+          <td>product_id → products.product_id</td>
+          <td>Stores stock and low-stock threshold per product.</td>
+        </tr>
+        <tr>
+          <td>orders</td>
+          <td>order_id</td>
+          <td>user_id → users.user_id</td>
+          <td>Captures order details, payment amount, and completion status.</td>
+        </tr>
+        <tr>
+          <td>order_items</td>
+          <td>order_item_id</td>
+          <td>order_id → orders.order_id, product_id → products.product_id</td>
+          <td>Stores the quantity and customized details per product in an order.</td>
+        </tr>
+        <tr>
+          <td>order_item_addons</td>
+          <td>order_item_addon_id</td>
+          <td>order_item_id → order_items.order_item_id, product_id → products.product_id</td>
+          <td>Tracks selected add-ons and addon pricing for an order item.</td>
+        </tr>
+        <tr>
+          <td>payments</td>
+          <td>payment_id</td>
+          <td>order_id → orders.order_id</td>
+          <td>Stores cash payment value and change given.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>6. Normalized Database Schema</h2>
+    <div class="code">CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    full_name VARCHAR(100) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'cashier')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories (
+    category_id SERIAL PRIMARY KEY,
+    category_name VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE products (
+    product_id SERIAL PRIMARY KEY,
+    category_id INT NOT NULL,
+    product_code VARCHAR(30) UNIQUE NOT NULL,
+    product_name VARCHAR(100) NOT NULL,
+    base_price NUMERIC(10,2) NOT NULL,
+    image_file VARCHAR(200),
+    is_active BOOLEAN DEFAULT TRUE,
+    CONSTRAINT fk_products_category
+        FOREIGN KEY (category_id) REFERENCES categories(category_id)
+);
+
+CREATE TABLE inventory (
+    product_id INT PRIMARY KEY,
+    current_stock INT NOT NULL DEFAULT 0,
+    low_stock_threshold INT NOT NULL DEFAULT 5,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_inventory_product
+        FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE orders (
+    order_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    order_type VARCHAR(20) NOT NULL CHECK (order_type IN ('DINE_IN', 'TAKE_OUT')),
+    status VARCHAR(20) NOT NULL DEFAULT 'COMPLETED'
+        CHECK (status IN ('PENDING', 'COMPLETED', 'CANCELLED')),
+    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount NUMERIC(10,2) NOT NULL DEFAULT 0,
+    cash_tendered NUMERIC(10,2) DEFAULT 0,
+    change_amount NUMERIC(10,2) DEFAULT 0,
+    CONSTRAINT fk_orders_user
+        FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+CREATE TABLE order_items (
+    order_item_id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL,
+    product_id INT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    sugar_level VARCHAR(20) DEFAULT 'N/A',
+    cup_size VARCHAR(20) DEFAULT 'N/A',
+    unit_price NUMERIC(10,2) NOT NULL,
+    CONSTRAINT fk_order_items_order
+        FOREIGN KEY (order_id) REFERENCES orders(order_id),
+    CONSTRAINT fk_order_items_product
+        FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE order_item_addons (
+    order_item_addon_id SERIAL PRIMARY KEY,
+    order_item_id INT NOT NULL,
+    product_id INT NOT NULL,
+    addon_price NUMERIC(10,2) NOT NULL,
+    CONSTRAINT fk_order_item_addon_item
+        FOREIGN KEY (order_item_id) REFERENCES order_items(order_item_id),
+    CONSTRAINT fk_order_item_addon_product
+        FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+CREATE TABLE payments (
+    payment_id SERIAL PRIMARY KEY,
+    order_id INT NOT NULL UNIQUE,
+    payment_method VARCHAR(20) NOT NULL CHECK (payment_method IN ('CASH')),
+    amount_paid NUMERIC(10,2) NOT NULL,
+    change_amount NUMERIC(10,2) NOT NULL,
+    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_payments_order
+        FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);</div>
+
+    <h2>7. Sample Data</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Table</th>
+          <th>Sample Values</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>users</td>
+          <td>dreamteam, cashier01</td>
+        </tr>
+        <tr>
+          <td>categories</td>
+          <td>Milk Tea, Fruit Tea, Snacks &amp; Bites, Add-ons</td>
+        </tr>
+        <tr>
+          <td>products</td>
+          <td>Wintermelon Cheese, Hokkaido Milk Tea, Lychee Fruit Tea, Pearl, Nata</td>
+        </tr>
+        <tr>
+          <td>inventory</td>
+          <td>current_stock: 20, 18, 12, 15, 10</td>
+        </tr>
+        <tr>
+          <td>orders</td>
+          <td>Order #1: DINE_IN, Order #2: TAKE_OUT</td>
+        </tr>
+        <tr>
+          <td>payments</td>
+          <td>Cash payment amount 300.00 and 200.00</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>8. Sample Insert Example</h2>
+    <div class="code">INSERT INTO users (username, password_hash, full_name, role)
+VALUES
+('dreamteam', 'hashed_password_123', 'Dream Team', 'admin'),
+('cashier01', 'hashed_password_456', 'Maria Santos', 'cashier');
+
+INSERT INTO categories (category_name)
+VALUES
+('Milk Tea'),
+('Fruit Tea'),
+('Snacks & Bites'),
+('Add-ons');
+
+INSERT INTO products (category_id, product_code, product_name, base_price, image_file)
+VALUES
+(1, 'MT-001', 'Wintermelon Cheese', 89.00, 'WintermelonC.jpg'),
+(2, 'FT-001', 'Lychee Fruit Tea', 75.00, 'LYCHEE.jpg'),
+(3, 'SN-001', 'Fries', 60.00, 'fries.jpg'),
+(4, 'AD-001', 'Pearl', 15.00, 'Pearl.jpg');
+
+INSERT INTO orders (user_id, order_type, status, total_amount, cash_tendered, change_amount)
+VALUES
+(1, 'DINE_IN', 'COMPLETED', 289.00, 300.00, 11.00);
+
+INSERT INTO order_items (order_id, product_id, quantity, sugar_level, cup_size, unit_price)
+VALUES
+(1, 1, 2, '50%', '16 oz', 89.00),
+(1, 4, 1, 'N/A', 'N/A', 15.00);
+
+INSERT INTO payments (order_id, payment_method, amount_paid, change_amount)
+VALUES
+(1, 'CASH', 300.00, 11.00);</div>
+
+    <h2>9. Final Conclusion</h2>
+    <p>
+      Based on the actual NIKKITEA repository, the most suitable database design is a normalized POS system with entities for users, products, categories, inventory, orders, order items, add-ons, and payments. This design supports real app behavior and remains easy to maintain, accurate, and scalable for future development.
+    </p>
+  </div>
+</body>
+</html>

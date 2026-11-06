@@ -1,0 +1,42 @@
+
+# Compiled Java files
+*.class
+
+# Build output
+/build/
+/dist/
+/target/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/nbdist/
+/.nb-gradle/
+
+# NetBeans cache and temporary files
+nbproject/private/
+*.tmp
+*.bak
+*.swp
+
+# IDE-specific files
+.idea/
+.vscode/
+*.iml
+
+# Logs
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Temporary files
+*.orig
+/IMAGES/nbproject/private/
